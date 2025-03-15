@@ -15,27 +15,57 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
   reading = analogRead(A0);
-  if(reading > UpperThreshold && IgnoreReading == false){
-    if(FirstPulseDetected == false){
+  
+  if (reading > UpperThreshold && !IgnoreReading) {
+    if (!FirstPulseDetected) {
       FirstPulseTime = millis();
       FirstPulseDetected = true;
-    }
-    else{
+    } else {
       SecondPulseTime = millis();
       PulseInterval = SecondPulseTime - FirstPulseTime;
       FirstPulseTime = SecondPulseTime;
-      FirstPUlseDetected = false;
+      FirstPulseDetected = false;
       IgnoreReading = true;
-    }
 
-    if(reading < LowerThreshold){
-      IgnoreReading = false;
+      // Prevent division by zero
+      if (PulseInterval > 0) {
+        BPM = (1.0 / PulseInterval) * 60.0 * 1000;
+        Serial.print(PulseInterval);
+        Serial.println(" BPM");
+      }
     }
-    BPM = (1.0/PulseInterval) * 60.0 * 1000;
-    Serial.Print(BPM);
-    Serial.Println(" BPM");
-    Serial.flush();
-  };
+  }
+
+  // Reset IgnoreReading when signal drops
+  if (reading < LowerThreshold) {
+    IgnoreReading = false;
+  }
 }
+
+
+// void loop() {
+//   // put your main code here, to run repeatedly:
+//   reading = analogRead(A0);
+//   if(reading > UpperThreshold && !IgnoreReading){
+//     if(FirstPulseDetected == false){
+//       FirstPulseTime = millis();
+//       FirstPulseDetected = true;
+//     }
+//     else{
+//       SecondPulseTime = millis();
+//       PulseInterval = SecondPulseTime - FirstPulseTime;
+//       FirstPulseTime = SecondPulseTime;
+//       FirstPulseDetected = false;
+//       IgnoreReading = true; 
+//     }
+
+//     if(reading < LowerThreshold){
+//       IgnoreReading = false;
+//     }
+//     BPM = (1.0/PulseInterval) * 60.0 * 1000;
+//     Serial.print(BPM);
+//     Serial.println(" BPM");
+//     Serial.flush();
+//   }
+// }
